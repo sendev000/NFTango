@@ -99,6 +99,8 @@ module overmind::nftango {
         game_address: address,
     ) acquires NFTangoStore {
         // TODO: assert that `NFTangoStore.did_creator_win` is set
+        let nftango_store = borrow_global<NFTangoStore>(account_address);
+        assert!(option::is_some(&nftango_store.did_creator_win), ERROR_NFTANGO_STORE_DOES_NOT_HAVE_DID_CREATOR_WIN);
     }
 
     public fun assert_nftango_store_has_not_claimed(
