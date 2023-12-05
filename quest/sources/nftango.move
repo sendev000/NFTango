@@ -107,6 +107,8 @@ module overmind::nftango {
         game_address: address,
     ) acquires NFTangoStore {
         // TODO: assert that `NFTangoStore.has_claimed` is false
+        let nftango_store = borrow_global<NFTangoStore>(account_address);
+        assert!(!nftango_store.has_claimed, ERROR_NFTANGO_STORE_HAS_CLAIMED);   
     }
 
     public fun assert_nftango_store_is_player(account_address: address, game_address: address) acquires NFTangoStore {
