@@ -91,7 +91,7 @@ module overmind::nftango {
         token_ids: vector<TokenId>,
     ) acquires NFTangoStore {
         // TODO: assert that `NFTangoStore.join_amount_requirement` is met
-        let nftango_store = borrow_global<NFTangoStore>(account_address);
+        let nftango_store = borrow_global<NFTangoStore>(game_address);
         assert!(nftango_store.join_amount_requirement == vector::length(&token_ids), ERROR_NFTANGO_STORE_JOIN_AMOUNT_REQUIREMENT_NOT_MET);
     }
 
@@ -99,7 +99,7 @@ module overmind::nftango {
         game_address: address,
     ) acquires NFTangoStore {
         // TODO: assert that `NFTangoStore.did_creator_win` is set
-        let nftango_store = borrow_global<NFTangoStore>(account_address);
+        let nftango_store = borrow_global<NFTangoStore>(game_address);
         assert!(option::is_some(&nftango_store.did_creator_win), ERROR_NFTANGO_STORE_DOES_NOT_HAVE_DID_CREATOR_WIN);
     }
 
@@ -107,12 +107,21 @@ module overmind::nftango {
         game_address: address,
     ) acquires NFTangoStore {
         // TODO: assert that `NFTangoStore.has_claimed` is false
-        let nftango_store = borrow_global<NFTangoStore>(account_address);
+        let nftango_store = borrow_global<NFTangoStore>(game_address);
         assert!(!nftango_store.has_claimed, ERROR_NFTANGO_STORE_HAS_CLAIMED);   
     }
 
     public fun assert_nftango_store_is_player(account_address: address, game_address: address) acquires NFTangoStore {
         // TODO: assert that `account_address` is either the equal to `game_address` or `NFTangoStore.opponent_address`
+        let nftango_store = borrow_global_mut<NFTangoStore>(game_address);
+
+        let is_creator = account_address == game_address;
+        let is_opponenet = option::some(account_address) == nftango_store.opponent_address;
+
+        assert!(
+            is_creator || is_opponenet,
+            error::invalid_argument(ERROR_NFTANGO_STORE_IS_NOT_PLAYER)
+        );
     }
 
     public fun assert_vector_lengths_are_equal(creator: vector<address>,
