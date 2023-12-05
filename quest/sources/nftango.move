@@ -82,6 +82,8 @@ module overmind::nftango {
         account_address: address,
     ) acquires NFTangoStore {
         // TODO: assert that `NFTangoStore.opponent_address` is not set
+        let nftango_store = borrow_global<NFTangoStore>(account_address);
+        assert!(option::is_none(&nftango_store.opponent_address), ERROR_NFTANGO_STORE_DOES_NOT_HAVE_AN_OPPONENT);        
     }
 
     public fun assert_nftango_store_join_amount_requirement_is_met(
