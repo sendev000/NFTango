@@ -44,13 +44,14 @@ module overmind::nftango {
         account_address: address,
     ) {
         // TODO: assert that `NFTangoStore` exists
-        assert!(exists!<NFTangoStore>(account_address), ERROR_NFTANGO_STORE_EXISTS);
+        assert!(exists<NFTangoStore>(account_address), ERROR_NFTANGO_STORE_DOES_NOT_EXIST);
     }
 
     public fun assert_nftango_store_does_not_exist(
         account_address: address,
     ) {
         // TODO: assert that `NFTangoStore` does not exist
+        assert!(!exists<NFTangoStore>(account_address), ERROR_NFTANGO_STORE_EXISTS);
     }
 
     public fun assert_nftango_store_is_active(
