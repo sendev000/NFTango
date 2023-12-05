@@ -66,6 +66,8 @@ module overmind::nftango {
         account_address: address,
     ) acquires NFTangoStore {
         // TODO: assert that `NFTangoStore.active` is not active
+        let nftango_store = borrow_global<NFTangoStore>(account_address);
+        assert!(!nftango_store.active, ERROR_NFTANGO_STORE_IS_NOT_ACTIVE);
     }
 
     public fun assert_nftango_store_has_an_opponent(
