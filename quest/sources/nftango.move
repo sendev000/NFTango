@@ -120,7 +120,7 @@ module overmind::nftango {
 
         assert!(
             is_creator || is_opponenet,
-            error::invalid_argument(ERROR_NFTANGO_STORE_IS_NOT_PLAYER)
+            ERROR_NFTANGO_STORE_IS_NOT_PLAYER
         );
     }
 
@@ -129,6 +129,11 @@ module overmind::nftango {
                                                token_name: vector<String>,
                                                property_version: vector<u64>) {
         // TODO: assert all vector lengths are equal
+        assert!(vector::length(&creator) == vector::length(&collection_name) &&
+                vector::length(&creator) == vector::length(&token_name) &&
+                vector::length(&creator) == vector::length(&property_version),
+                ERROR_VECTOR_LENGTHS_NOT_EQUAL
+            );
     }
 
     //
