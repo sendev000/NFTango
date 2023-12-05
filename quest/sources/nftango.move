@@ -91,6 +91,8 @@ module overmind::nftango {
         token_ids: vector<TokenId>,
     ) acquires NFTangoStore {
         // TODO: assert that `NFTangoStore.join_amount_requirement` is met
+        let nftango_store = borrow_global<NFTangoStore>(account_address);
+        assert!(nftango_store.join_amount_requirement == vector::length(&token_ids), ERROR_NFTANGO_STORE_JOIN_AMOUNT_REQUIREMENT_NOT_MET);
     }
 
     public fun assert_nftango_store_has_did_creator_win(
