@@ -175,25 +175,6 @@ module overmind::nftango {
     public entry fun cancel_game(
         account: &signer,
     ) acquires NFTangoStore {
-        // TODO: run assert_nftango_store_exists
-        // TODO: run assert_nftango_store_is_active
-        // TODO: run assert_nftango_store_does_not_have_an_opponent
-
-        // TODO: opt in to direct transfer for account
-
-        // TODO: transfer NFT to account address
-
-        // TODO: set `NFTangoStore.active` to false
-    }
-
-    public fun join_game(
-        account: &signer,
-        game_address: address,
-        creators: vector<address>,
-        collection_names: vector<String>,
-        token_names: vector<String>,
-        property_versions: vector<u64>,
-    ) acquires NFTangoStore {
         let account_address = signer::address_of(account);
 
         assert_nftango_store_exists(account_address);
@@ -211,6 +192,17 @@ module overmind::nftango {
         );
 
         nftango_store.active = false;
+    }
+
+    public fun join_game(
+        account: &signer,
+        game_address: address,
+        creators: vector<address>,
+        collection_names: vector<String>,
+        token_names: vector<String>,
+        property_versions: vector<u64>,
+    ) acquires NFTangoStore {
+
     }
 
     public entry fun play_game(account: &signer, did_creator_win: bool) acquires NFTangoStore {
