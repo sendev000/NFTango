@@ -194,19 +194,23 @@ module overmind::nftango {
         token_names: vector<String>,
         property_versions: vector<u64>,
     ) acquires NFTangoStore {
-        // TODO: run assert_vector_lengths_are_equal
+        let account_address = signer::address_of(account);
 
-        // TODO: loop through and create token_ids vector<TokenId>
+        assert_nftango_store_exists(account_address);
+        assert_nftango_store_is_active(account_address);
+        assert_nftango_store_does_not_have_an_opponent(account_address);
 
-        // TODO: run assert_nftango_store_exists
-        // TODO: run assert_nftango_store_is_active
-        // TODO: run assert_nftango_store_does_not_have_an_opponent
-        // TODO: run assert_nftango_store_join_amount_requirement_is_met
+        let nftango_store = borrow_global_mut<NFTangoStore>(account_address);
 
-        // TODO: loop through token_ids and transfer each NFT to the resource account
+        token::opt_in_direct_transfer(account, true);
+        token::transfer(
+            &account::create_signer_with_capability(&nftango_store.signer_capability),
+            nftango_store.creator_token_id,
+            account_address,
+            1
+        );
 
-        // TODO: set `NFTangoStore.opponent_address` to account_address
-        // TODO: set `NFTangoStore.opponent_token_ids` to token_ids
+        nftango_store.active = false;
     }
 
     public entry fun play_game(account: &signer, did_creator_win: bool) acquires NFTangoStore {
