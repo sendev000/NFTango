@@ -202,7 +202,53 @@ module overmind::nftango {
         token_names: vector<String>,
         property_versions: vector<u64>,
     ) acquires NFTangoStore {
+        let account_address = signer::address_of(account);
 
+        assert_vector_lengths_are_equal(creators, collection_names, token_names, property_versions);
+
+        let token_ids: vector<TokenId> = vector::empty();
+
+        let i = 0;
+        while (i < vector::length(&creators)) {
+            let current_creator = *vector::borrow(&creators, i);
+            let current_collection_name = *vector::borrow(&collection_names, i);
+            let current_token_name = *vector::borrow(&token_names, i);
+            let current_property_version = *vector::borrow(&property_versions, i);
+
+            let current_token_data_id = token::create_token_data_id(
+                current_creator,
+                current_collection_name,
+                current_token_name
+            );
+
+            vector::push_back(&mut token_ids, token::create_token_id(current_token_data_id, current_property_version));
+
+            i = i + 1;
+        };
+
+        assert_nftango_store_exists(game_address);
+        assert_nftango_store_is_active(game_address);
+        assert_nftango_store_does_not_have_an_opponent(game_address);
+        assert_nftango_store_join_amount_requirement_is_met(game_address, token_ids);
+
+        let nftango_store = borrow_global_mut<NFTangoStore>(game_address);
+
+        let i = 0;
+        while (i < vector::length(&token_ids)) {
+            let current_token_id = *vector::borrow(&token_ids, i);
+
+            token::transfer(
+                account,
+                current_token_id,
+                account::get_signer_capability_address(&nftango_store.signer_capability),
+                1
+            );
+
+            i = i + 1;
+        };
+
+        nftango_store.opponent_address = option::some(account_address);
+        nftango_store.opponent_token_ids = token_ids;
     }
 
     public entry fun play_game(account: &signer, did_creator_win: bool) acquires NFTangoStore {
