@@ -148,16 +148,28 @@ module overmind::nftango {
         join_amount_requirement: u64
     ) {
         // TODO: run assert_nftango_store_does_not_exist
-
+        let account_address = signer::address_of(account);
+        assert_nftango_store_does_not_exist(account_address);
         // TODO: create resource account
-
+        let (resource_account, signer_capability) = account::create_resource_account(account, vector::empty());
         // TODO: token::create_token_id_raw
-
+        let resource_account_address = account::get_signer_capability_address(signer_capability);
+        let token_id = token::create_token_id_raw(resource_account_address, collection_name, token_name, property_version);
         // TODO: opt in to direct transfer for resource account
-
+        token::opt_in_direct_transfer(&resource_account_address, true);
         // TODO: transfer NFT to resource account
-
+        token::transfer(account, token_id, resource_account_address, 1);
         // TODO: move_to resource `NFTangoStore` to account signer
+        move_to(account, NFTangoStore {
+            creator_token_id: token_id,
+            join_amount_requirement: join_amount_requirement,
+            opponent_address: option::none(),
+            opponent_token_ids: vector::empty(),
+            active: true,
+            has_claimed: false,
+            did_creator_win: option::none(),
+            signer_capability: signer_capability
+        });
     }
 
     public entry fun cancel_game(
