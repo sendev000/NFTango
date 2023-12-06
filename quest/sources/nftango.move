@@ -252,12 +252,16 @@ module overmind::nftango {
     }
 
     public entry fun play_game(account: &signer, did_creator_win: bool) acquires NFTangoStore {
-        // TODO: run assert_nftango_store_exists
-        // TODO: run assert_nftango_store_is_active
-        // TODO: run assert_nftango_store_has_an_opponent
+        let account_address = signer::address_of(account);
 
-        // TODO: set `NFTangoStore.did_creator_win` to did_creator_win
-        // TODO: set `NFTangoStore.active` to false
+        assert_nftango_store_exists(account_address);
+        assert_nftango_store_is_active(account_address);
+        assert_nftango_store_has_an_opponent(account_address);
+
+        let nftango_store = borrow_global_mut<NFTangoStore>(account_address);
+
+        nftango_store.did_creator_win = option::some(did_creator_win);
+        nftango_store.active = false;
     }
 
     public entry fun claim(account: &signer, game_address: address) acquires NFTangoStore {
