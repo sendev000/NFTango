@@ -265,13 +265,43 @@ module overmind::nftango {
     }
 
     public entry fun claim(account: &signer, game_address: address) acquires NFTangoStore {
-        // TODO: run assert_nftango_store_exists
-        // TODO: run assert_nftango_store_is_not_active
-        // TODO: run assert_nftango_store_has_not_claimed
-        // TODO: run assert_nftango_store_is_player
+        let account_address = signer::address_of(account);
 
-        // TODO: if the player won, send them all the NFTs
+        assert_nftango_store_exists(game_address);
+        assert_nftango_store_is_not_active(game_address);
+        assert_nftango_store_has_not_claimed(game_address);
+        assert_nftango_store_is_player(account_address, game_address);
 
-        // TODO: set `NFTangoStore.has_claimed` to true
+        let nftango_store = borrow_global_mut<NFTangoStore>(game_address);
+
+        let is_creator = account_address == game_address;
+        let is_opponenet = option::some(account_address) == nftango_store.opponent_address;
+
+        if ((is_creator && nftango_store.did_creator_win == option::some(
+            true
+        )) || (is_opponenet && nftango_store.did_creator_win == option::some(false))) {
+            token::transfer(
+                &account::create_signer_with_capability(&nftango_store.signer_capability),
+                nftango_store.creator_token_id,
+                account_address,
+                1
+            );
+
+            let i = 0;
+            while (i < vector::length(&nftango_store.opponent_token_ids)) {
+                let current_token_id = *vector::borrow(&nftango_store.opponent_token_ids, i);
+
+                token::transfer(
+                    &account::create_signer_with_capability(&nftango_store.signer_capability),
+                    current_token_id,
+                    account_address,
+                    1
+                );
+
+                i = i + 1;
+            };
+        };
+
+        nftango_store.has_claimed = true;
     }
 }
